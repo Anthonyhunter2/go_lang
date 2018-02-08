@@ -14,7 +14,7 @@ func mainb() {
 	number := rand.Intn(100)
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("I'm thinking of a number between 1 and 100, can you guess my number?\n")
-	guess, _ := reader.Re
+	guess, _ := reader.Reader
 	if guess == number {
 		fmt.Println("OMG YOU guessed my number")
 	} else {
