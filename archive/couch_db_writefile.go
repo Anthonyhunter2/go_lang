@@ -9,8 +9,10 @@ import (
 )
 
 type TestDocument struct {
-	Title string
-	Note  string
+	Date  time.Time
+	User  string
+	Hole  int
+	Score int
 }
 
 func main() {
@@ -18,7 +20,7 @@ func main() {
 	conn, err := couchdb.NewConnection("172.17.0.2", 5984, timeout)
 	auth := couchdb.BasicAuth{Username: "golfer", Password: "Easy123!"}
 	db := conn.SelectDB("project_under_par", &auth)
-	theDoc := TestDocument{Title: "The first doc uploaded", Note: "I guess scores or could go here"}
+	theDoc := TestDocument{Date: time.Now(), User: "mazzaa", Hole: 3, Score: 6}
 	idNew := uuid.New().String()
 	simble, err := db.Save(theDoc, idNew, "")
 	fmt.Println(simble)
