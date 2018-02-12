@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rhinoman/couchdb-go"
 )
 
@@ -24,7 +25,8 @@ func main() {
 		Hole1: map[string]int{"Score": 56},
 		Hole2: map[string]int{"Score": 110}}
 
-	simble, err := db.Save(theDoc, "5352f6c9-6df3-4acd-ac7d-01810541b785", "1-82b70ea52dbbde8a859a948bbc896801")
+	newID := uuid.New().String()
+	simble, err := db.Save(theDoc, newID, "")
 	fmt.Println(simble)
 	if err != nil {
 		fmt.Println(err)
