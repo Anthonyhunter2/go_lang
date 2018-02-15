@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -69,9 +70,13 @@ func main() {
 	docToSend := ScoreCard{}
 	err2 := json.Unmarshal(dat, &docToSend)
 	check(err2)
-	// // passsedIn := os.Args[1]
-	newID := uuid.New().String()
-	simble, err := db.Save(docToSend, newID, "")
-	fmt.Println(simble, newID)
-	check(err)
+	passedIn := os.Args[1:]
+	if len(passedIn) == 0 {
+		newID := uuid.New().String()
+		simble, err := db.Save(docToSend, newID, "")
+		fmt.Println(simble, newID)
+		check(err)
+	} else {
+
+	}
 }
