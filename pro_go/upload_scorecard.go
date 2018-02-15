@@ -4,18 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
-	"time"
-
-	"github.com/google/uuid"
-	couchdb "github.com/rhinoman/couchdb-go"
 )
 
 type Holes struct {
 	Hole1  int `json:"Hole 1"`
-	Score1 int `json:"Score"`
+	Score1 int `json:"Score 1"`
 	Hole2  int `json:"Hole 2"`
-	Score2 int `json:"Score"`
+	Score2 int `json:"Score 2"`
 	// Hole3  int `json:"Hole 3"`
 	// Score3  int `json:"Score 3"`
 	// Hole4   int `json:"Hole 4"`
@@ -61,22 +56,23 @@ func check(e error) {
 	}
 }
 func main() {
-	timeout := time.Duration(500 * time.Millisecond)
-	conn, err := couchdb.NewConnection("172.17.0.2", 5984, timeout)
-	auth := couchdb.BasicAuth{Username: "golfer", Password: "Easy123!"}
-	db := conn.SelectDB("project_under_par", &auth)
+	// timeout := time.Duration(500 * time.Millisecond)
+	// conn, err := couchdb.NewConnection("172.17.0.2", 5984, timeout)
+	// auth := couchdb.BasicAuth{Username: "golfer", Password: "Easy123!"}
+	// db := conn.SelectDB("project_under_par", &auth)
 	dat, err := ioutil.ReadFile("/home/anthony/go/pro_go/holedoc.json")
 	check(err)
 	docToSend := ScoreCard{}
 	err2 := json.Unmarshal(dat, &docToSend)
+	fmt.Println(docToSend.Round.Score1)
 	check(err2)
-	passedIn := os.Args[1:]
-	if len(passedIn) == 0 {
-		newID := uuid.New().String()
-		simble, err := db.Save(docToSend, newID, "")
-		fmt.Println(simble, newID)
-		check(err)
-	} else {
+	//	passedIn := os.Args[1:]
+	// if len(passedIn) == 0 {
+	// 	newID := uuid.New().String()
+	// 	simble, err := db.Save(docToSend, newID, "")
+	// 	fmt.Println(simble, newID)
+	// 	check(err)
+	// } else {
 
-	}
+	// }
 }
