@@ -65,6 +65,7 @@ func main() {
 	// db := conn.SelectDB("project_under_par", &auth)
 	dat, err := ioutil.ReadFile("/home/anthony/go/pro_go/holedoc.json")
 	check(err)
+
 	docToSend := ScoreCard{}
 	err2 := json.Unmarshal(dat, &docToSend)
 	fmt.Println(docToSend.Round.Score1)
