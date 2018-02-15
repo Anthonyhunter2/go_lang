@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 )
 
+// Holes This holds just the struct for our golf holes
 type Holes struct {
 	Hole1  int `json:"Hole 1"`
 	Score1 int `json:"Score 1"`
@@ -44,6 +45,8 @@ type Holes struct {
 	// Hole18  int `json:"Hole 18"`
 	// Score18 int `json:"Score 18"`
 }
+
+//ScoreCard Holds our complete data set, including name & date
 type ScoreCard struct {
 	//	Date  time.Time
 	User  string `json:"User"`
