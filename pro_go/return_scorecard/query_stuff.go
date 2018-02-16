@@ -1,42 +1,41 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/url"
 	"time"
 
-	"github.com/rhinoman/couchdb-go"
+	scoreCard "github.com/pro_go/cards"
+	couchdb "github.com/rhinoman/couchdb-go"
 )
 
-type readdoc struct {
-	_id   string
-	_rev  string
-	User  string
-	Hole  int
-	Score int
+// queryb)trying to grab the unique id were tring to query
+type idReturn struct {
+	ID string `json:"_id"`
 }
 
 func main() {
-	var timeout = time.Duration(500 * time.Millisecond)
-	conn, err := couchdb.NewConnection("192.168.1.52", 5984, timeout)
+	timeout := time.Duration(500 * time.Millisecond)
+	conn, err := couchdb.NewConnection("172.17.0.2", 5984, timeout)
 	auth := couchdb.BasicAuth{Username: "golfer", Password: "Easy123!"}
 	db := conn.SelectDB("project_under_par", &auth)
-	query := readdoc{
-		_id:   "",
-		_rev:  "",
-		User:  "horan116",
-		Hole:  0,
-		Score: 0,
-	}
-	v := couchdb.FindQueryParams{}
-
-	//newDoc := readdoc{}
-	//	rev, err := db.Read("9fad9897-d871-4cd7-ae95-96ad3c473aed", &newDoc, &v)
-	e := db.Find(&query, &v)
+	dat, err := ioutil.ReadFile("/home/anthony/go/pro_go/query.json")
 	if err != nil {
 		fmt.Println(err)
-	} else {
-		fmt.Println(e)
 	}
-	fmt.Println(query)
+	incomingID := idReturn{}
+	err2 := json.Unmarshal(dat, &incomingID)
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	currentScoreCard := scoreCard.ScoreCard{}
+	v := url.Values{}
+	revNumber, _ := db.Read(incomingID.ID, &currentScoreCard, &v)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(revNumber, currentScoreCard)
 
 }
