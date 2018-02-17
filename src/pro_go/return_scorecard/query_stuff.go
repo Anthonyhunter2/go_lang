@@ -11,7 +11,7 @@ import (
 	couchdb "github.com/rhinoman/couchdb-go"
 )
 
-// queryb)trying to grab the unique id were tring to query
+// idReturn returns the passed in json formatted id number
 type idReturn struct {
 	ID string `json:"_id"`
 }
