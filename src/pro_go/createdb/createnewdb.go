@@ -10,7 +10,7 @@ func main() {
 	if action == "DB Created" {
 		//	newRecords := makeScores.UploadScores()
 		for i := 0; i < 10; i++ {
-			makeScores.UploadScores()
+			makeScores.UploadScores("project_under_par")
 		}
 	}
 }

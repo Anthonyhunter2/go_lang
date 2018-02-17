@@ -18,11 +18,12 @@ func check(e error) {
 	}
 }
 
-func UploadScores() {
+//UploadScores writes a specified json file (file for now later to be passwd json from front end) to the named database
+func UploadScores(dbname string) {
 	timeout := time.Duration(500 * time.Millisecond)
 	conn, err := couchdb.NewConnection("172.17.0.2", 5984, timeout)
 	auth := couchdb.BasicAuth{Username: "golfer", Password: "Easy123!"}
-	db := conn.SelectDB("project_under_par", &auth)
+	db := conn.SelectDB(dbname, &auth)
 	dat, err := ioutil.ReadFile("/home/anthony/go/src/pro_go/holedoc.json")
 	check(err)
 
