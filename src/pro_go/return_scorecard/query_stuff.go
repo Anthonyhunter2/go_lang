@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	scoreCard "pro_go/packages/card"
 	"time"
 
-	scoreCard "github.com/pro_go/cards"
 	couchdb "github.com/rhinoman/couchdb-go"
 )
 
