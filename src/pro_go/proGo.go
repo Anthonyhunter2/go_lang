@@ -71,7 +71,7 @@ func NewRound(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	username := params["user"]
 	randomuuid := uuid.New().String()
-	card := ScoreCard{User: username}
+	card := ScoreCard{User: username, CHole: 1}
 	_, err := db.Save(&card, randomuuid, "")
 	if err != nil {
 		w.WriteHeader(401)
@@ -97,6 +97,10 @@ func UpdateRound(w http.ResponseWriter, r *http.Request) {
 	}
 	//This updates the current hole# value based on the "Hole" input in the incoming request
 	reflect.ValueOf(&card.Round).Elem().FieldByName(hole).SetInt(newVal)
+	// This grabs the current hole value and sets it to the hole that was just updated
+	curHoleUpdated, _ := strconv.ParseInt(hole[len(hole)-1:], 10, 64)
+	reflect.ValueOf(&card.CHole).Elem().SetInt(curHoleUpdated)
+
 	_, err2 := db.Save(&card, key, revnumber)
 	if err2 != nil {
 		w.WriteHeader(401)
@@ -105,23 +109,31 @@ func UpdateRound(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(card)
 }
 
-//CurrentHole will show the current hole
-// func CurrentHole(w http.ResponseWriter, r *http.Request) {
-// 	params := mux.Vars(r)
-// 	ID := params["id"]
-// 	card := ScoreCard{User: username}
-// 	_, err := db.Save(&card, randomuuid, "")
-// 	if err != nil {
-// 		w.WriteHeader(401)
-// 		w.Write([]byte("That ID was not found"))
-// 		return
-// 	}
-// 	json.NewEncoder(w).Encode(randomuuid)
-// }
+//CurrentHole will show the current hole and score
+func CurrentHole(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	ID := params["id"]
+	card := ScoreCard{}
+	v := url.Values{}
+	_, err := db.Read(ID, &card, &v)
+	if err != nil {
+		w.WriteHeader(401)
+		w.Write([]byte("That ID was not found"))
+		return
+	}
+	curHoleNum := strconv.Itoa(card.CHole)
+	curHoleString := "Hole" + curHoleNum
+	curHoleVal := reflect.ValueOf(&card.Round).Elem().FieldByName(curHoleString).Int()
+	type jresponse struct {
+		Hole  string
+		Score int64
+	}
+	json.NewEncoder(w).Encode(jresponse{Hole: curHoleNum, Score: curHoleVal})
+}
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/getscore/{id}", GetScore).Methods("GET")
-	//	router.HandleFunc("/currenthole/{id}", CurrentHole).Methods("GET")
+	router.HandleFunc("/currenthole/{id}", CurrentHole).Methods("GET")
 	router.HandleFunc("/newround/{user}", NewRound).Methods("POST")
 	router.HandleFunc("/round/update&{id}&{hole}={num}", UpdateRound).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8080", router))
