@@ -180,9 +180,25 @@ func NextHole(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(jresponse{Hole: NextHoleNum, Score: NextHoleVal})
 }
+
+//CurrentRound will return just the current round
+func CurrentRound(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	key := params["id"]
+	card := ScoreCard{}
+	v := url.Values{}
+	_, err := db.Read(key, &card, &v)
+	if err != nil {
+		w.WriteHeader(401)
+		w.Write([]byte("Make sure your passing all arguments"))
+		return
+	}
+	json.NewEncoder(w).Encode(&card.Round)
+}
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/getscore/{id}", GetScore).Methods("GET")
+	router.HandleFunc("/currentround/{id}", CurrentRound).Methods("GET")
 	router.HandleFunc("/currenthole/{id}", CurrentHole).Methods("GET")
 	router.HandleFunc("/prevhole/{id}", PrevHole).Methods("GET")
 	router.HandleFunc("/nexthole/{id}", NextHole).Methods("GET")
