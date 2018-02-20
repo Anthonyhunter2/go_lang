@@ -130,10 +130,62 @@ func CurrentHole(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(jresponse{Hole: curHoleNum, Score: curHoleVal})
 }
+
+//PrevHole will show the current hole and score
+func PrevHole(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	ID := params["id"]
+	card := ScoreCard{}
+	v := url.Values{}
+	_, err := db.Read(ID, &card, &v)
+	if err != nil {
+		w.WriteHeader(401)
+		w.Write([]byte("That ID was not found"))
+		return
+	}
+	if card.CHole-1 == 0 {
+		card.CHole = 19
+	}
+	prevHoleNum := strconv.Itoa(card.CHole - 1)
+	prevHoleString := "Hole" + prevHoleNum
+	prevHoleVal := reflect.ValueOf(&card.Round).Elem().FieldByName(prevHoleString).Int()
+	type jresponse struct {
+		Hole  string
+		Score int64
+	}
+	json.NewEncoder(w).Encode(jresponse{Hole: prevHoleNum, Score: prevHoleVal})
+}
+
+//NextHole will show the current hole and score
+func NextHole(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	ID := params["id"]
+	card := ScoreCard{}
+	v := url.Values{}
+	_, err := db.Read(ID, &card, &v)
+	if err != nil {
+		w.WriteHeader(401)
+		w.Write([]byte("That ID was not found"))
+		return
+	}
+	if card.CHole+1 == 19 {
+		card.CHole = 0
+	}
+	NextHoleNum := strconv.Itoa(card.CHole + 1)
+	NextHoleString := "Hole" + NextHoleNum
+	NextHoleVal := reflect.ValueOf(&card.Round).Elem().FieldByName(NextHoleString).Int()
+	type jresponse struct {
+		Hole  string
+		Score int64
+	}
+	json.NewEncoder(w).Encode(jresponse{Hole: NextHoleNum, Score: NextHoleVal})
+}
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/getscore/{id}", GetScore).Methods("GET")
 	router.HandleFunc("/currenthole/{id}", CurrentHole).Methods("GET")
+	router.HandleFunc("/prevhole/{id}", PrevHole).Methods("GET")
+	router.HandleFunc("/nexthole/{id}", NextHole).Methods("GET")
 	router.HandleFunc("/newround/{user}", NewRound).Methods("POST")
 	router.HandleFunc("/round/update&{id}&{hole}={num}", UpdateRound).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8080", router))
