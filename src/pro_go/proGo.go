@@ -16,6 +16,12 @@ import (
 	couchdb "github.com/rhinoman/couchdb-go"
 )
 
+//We're going to pass in the static variables from environemnt variables passed in the docker file
+//dbAddr := os.Getenv("DBSERVER")
+//dbAdmin := os.Getenv("DBADMIN")
+//dbPasswd := os.Getenv("DBPASSWORD")
+//dbName := os.Getenv("DBNAME")
+
 // Here we've made our varables global so we can take full advantage of the couchdb lib
 var timeout = time.Duration(500 * time.Millisecond)
 var conn, err = couchdb.NewConnection("172.17.0.2", 5984, timeout)
