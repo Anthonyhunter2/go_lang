@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"reflect"
 	"strconv"
 	"time"
@@ -16,17 +17,18 @@ import (
 	couchdb "github.com/rhinoman/couchdb-go"
 )
 
-//We're going to pass in the static variables from environemnt variables passed in the docker file
-//dbAddr := os.Getenv("DBSERVER")
-//dbAdmin := os.Getenv("DBADMIN")
-//dbPasswd := os.Getenv("DBPASSWORD")
-//dbName := os.Getenv("DBNAME")
+//We're going to pass in the static variables from environemnt variables
+//These are nessisary to make a db connection
+var dbAddr = os.Getenv("DBSERVER")
+var dbAdmin = os.Getenv("DBADMIN")
+var dbPasswd = os.Getenv("DBPASSWORD")
+var dbName = os.Getenv("DBNAME")
 
 // Here we've made our varables global so we can take full advantage of the couchdb lib
 var timeout = time.Duration(500 * time.Millisecond)
-var conn, err = couchdb.NewConnection("172.17.0.2", 5984, timeout)
-var auth = couchdb.BasicAuth{Username: "golfer", Password: "Easy123!"}
-var db = conn.SelectDB("project_under_par", &auth)
+var conn, err = couchdb.NewConnection(dbAddr, 5984, timeout)
+var auth = couchdb.BasicAuth{Username: dbAdmin, Password: dbPasswd}
+var db = conn.SelectDB(dbName, &auth)
 
 //Holes just keeps the contents of our full 18 hole course scores
 type Holes struct {
@@ -202,6 +204,14 @@ func CurrentRound(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&card.Round)
 }
 func main() {
+	muxport := os.Getenv("MUX_PORT")
+	//mux needs the proceeding ":" we are checking for it here and adding it if not specified
+	if string(muxport[0]) != ":" {
+		muxport = ":" + muxport
+		//also if no port is specified the default port will be 8080
+	} else if muxport == "" {
+		muxport = ":8080"
+	}
 	router := mux.NewRouter()
 	router.HandleFunc("/getscore/{id}", GetScore).Methods("GET")
 	router.HandleFunc("/currentround/{id}", CurrentRound).Methods("GET")
@@ -210,5 +220,5 @@ func main() {
 	router.HandleFunc("/nexthole/{id}", NextHole).Methods("GET")
 	router.HandleFunc("/newround/{user}", NewRound).Methods("POST")
 	router.HandleFunc("/round/update&{id}&{hole}={num}", UpdateRound).Methods("POST")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(muxport, router))
 }
