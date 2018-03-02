@@ -26,7 +26,4 @@ func initdb() {
 	mondb = moncon.DB(dbname)
 	moncol = mondb.C(col)
 
-	//fmt.Print(s.Find(nil).All(&Something))
-	//fmt.Println("Creating DB connection")
-
 }
