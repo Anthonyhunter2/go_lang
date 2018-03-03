@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -37,10 +38,10 @@ type Person struct {
 	Round Holes         `json:"Round" bson:"Round"`
 }
 
-func createNew() string {
+func createNew(golfer string) string {
 	newID := bson.NewObjectId()
 	currentdate := time.Now().Format("2006-01-02")
-	playerone := &Person{ID: newID, Date: currentdate}
+	playerone := &Person{ID: newID, Date: currentdate, Name: golfer}
 	err := moncol.Insert(playerone)
 	if err != nil {
 		fmt.Println(err)
@@ -49,16 +50,16 @@ func createNew() string {
 }
 
 func findOneByID(idstring string) (*Person, error) {
-	result := Person{}
+	result := &Person{}
 	err := moncol.Find(bson.M{"_id": bson.ObjectIdHex(idstring)}).One(&result)
 	if err != nil {
 		fmt.Println("Couldn't Find that ID string")
-		return &result, err
+		return result, err
 	}
-	return &result, err
+	return result, err
 }
-func updateOneByID(idstring string) string {
-	result := &Person{Name: "Steve"}
+func updateOneByID(idstring string, golfer string) string {
+	result := &Person{}
 	err := moncol.Update(bson.M{"_id": bson.ObjectIdHex(idstring)}, &result)
 	if err != nil {
 		return "Couldn't Find that ID string"
@@ -74,6 +75,13 @@ func deleteByID(idstring string) string {
 }
 
 func updateSingleHole(idstring string, feild string, score int) string {
+	// tests to make sure the feild to update is given in the correct systax
+	if !strings.Contains(feild, " ") {
+		feild = feild[:4] + " " + feild[4:]
+	}
+	//couldn't find an easy way to test to make sure the first char of feild was uppercase
+	//so were just setting it to uppercase here
+	feild = strings.ToUpper(string(feild[0])) + feild[1:]
 	findDoc := bson.M{"_id": bson.ObjectIdHex(idstring)}
 	updateDoc := bson.M{"$set": bson.M{"Round." + feild: score}}
 	err := moncol.Update(findDoc, updateDoc)
@@ -85,9 +93,9 @@ func updateSingleHole(idstring string, feild string, score int) string {
 func main() {
 	initdb()
 	defer moncon.Close()
-	// fmt.Println(createNew())
-	// fmt.Println(updateSingleHole("5a9ac806c9a0d83a4a8b7052", "Hole 2", 3))
-	fmt.Println(findOneByID("5a9ac806c9a0d83a4a8b7052"))
-	//fmt.Println(updateSingleHole("5a98afa0c9a0d86be221e816", "Hole 1", 3))
+	//fmt.Println(createNew("Anthony"))
+	fmt.Println(updateSingleHole("5a9aceeec9a0d85451c38031", "hole12", 3))
+	// fmt.Println(findOneByID("5a9aceeec9a0d85451c38031"))
+	//fmt.Println(deleteByID("5a98afa0c9a0d86be221e816")
 	//fmt.Println(updateSingleHole("5a98afa0c9a0d86be221e816", "Hole 1", 3))
 }
