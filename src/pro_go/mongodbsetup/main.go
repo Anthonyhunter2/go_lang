@@ -7,8 +7,8 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
-//Round holds just our hole information
-type Round struct {
+//Holes holds just our hole information
+type Holes struct {
 	Hole1  int `json:"Hole 1" bson:"Hole 1"`
 	Hole2  int `json:"Hole 2" bson:"Hole 2"`
 	Hole3  int `json:"Hole 3" bson:"Hole 3"`
@@ -34,7 +34,7 @@ type Person struct {
 	ID    bson.ObjectId `json:"-" bson:"_id,omitempty"`
 	Date  string        `json:"Date" bson:"Date"`
 	Name  string        `json:"Name" bson:"Name"`
-	Round Round
+	Round Holes         `json:"Round" bson:"Round"`
 }
 
 func createNew() string {
@@ -72,8 +72,22 @@ func deleteByID(idstring string) string {
 	}
 	return "Deleted"
 }
+
+func updateSingleHole(idstring string, feild string, score int) string {
+	findDoc := bson.M{"_id": bson.ObjectIdHex(idstring)}
+	updateDoc := bson.M{"$set": bson.M{"Round." + feild: score}}
+	err := moncol.Update(findDoc, updateDoc)
+	if err != nil {
+		return "Could not update record"
+	}
+	return "Updated"
+}
 func main() {
 	initdb()
 	defer moncon.Close()
-	fmt.Println(createNew())
+	// fmt.Println(createNew())
+	// fmt.Println(updateSingleHole("5a9ac806c9a0d83a4a8b7052", "Hole 2", 3))
+	fmt.Println(findOneByID("5a9ac806c9a0d83a4a8b7052"))
+	//fmt.Println(updateSingleHole("5a98afa0c9a0d86be221e816", "Hole 1", 3))
+	//fmt.Println(updateSingleHole("5a98afa0c9a0d86be221e816", "Hole 1", 3))
 }
