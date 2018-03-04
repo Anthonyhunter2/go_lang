@@ -51,7 +51,30 @@ func TestUpdateHole(t *testing.T) {
 		t.Errorf("Something went wrong updating a single hole doc")
 	}
 }
-
+func TestCurHole(t *testing.T) {
+	initdb()
+	defer moncon.Close()
+	check := currentHole(obID)
+	if string(check[:4]) != "Hole" {
+		t.Errorf("Something went wrong returning current hole")
+	}
+}
+func TestNextHole(t *testing.T) {
+	initdb()
+	defer moncon.Close()
+	check := nextHole(obID)
+	if string(check[:4]) != "Hole" {
+		t.Errorf("Something went wrong returning Next hole")
+	}
+}
+func TestPreviousHole(t *testing.T) {
+	initdb()
+	defer moncon.Close()
+	check := previousHole(obID)
+	if string(check[:4]) != "Hole" {
+		t.Errorf("Something went wrong returning Previous hole")
+	}
+}
 func TestDeleteDoc(t *testing.T) {
 	initdb()
 	defer moncon.Close()
