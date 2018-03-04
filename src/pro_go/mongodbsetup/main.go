@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,10 +33,11 @@ type Holes struct {
 
 //Person is a test struct for now
 type Person struct {
-	ID    bson.ObjectId `json:"-" bson:"_id,omitempty"`
-	Date  string        `json:"Date" bson:"Date"`
-	Name  string        `json:"Name" bson:"Name"`
-	Round Holes         `json:"Round" bson:"Round"`
+	ID      bson.ObjectId `json:"-" bson:"_id,omitempty"`
+	Date    string        `json:"Date" bson:"Date"`
+	Name    string        `json:"Name" bson:"Name"`
+	CurHole string        `json:"Current Hole" bson:"Current Hole"`
+	Round   Holes         `json:"Round" bson:"Round"`
 }
 
 func createNew(golfer string) string {
@@ -82,20 +84,65 @@ func updateSingleHole(idstring string, feild string, score int) string {
 	//couldn't find an easy way to test to make sure the first char of feild was uppercase
 	//so were just setting it to uppercase here
 	feild = strings.ToUpper(string(feild[0])) + feild[1:]
+	holeNum, _ := strconv.Atoi(string(feild[5:]))
+	if 0 < holeNum && holeNum > 19 {
+		return "Thats not a vaild hole number"
+	}
 	findDoc := bson.M{"_id": bson.ObjectIdHex(idstring)}
-	updateDoc := bson.M{"$set": bson.M{"Round." + feild: score}}
+	updateDoc := bson.M{"$set": bson.M{"Round." + feild: score, "Current Hole": feild}}
 	err := moncol.Update(findDoc, updateDoc)
 	if err != nil {
 		return "Could not update record"
 	}
 	return "Updated"
 }
+
+func currentHole(idstring string) string {
+	result := &Person{}
+	err := moncol.Find(bson.M{"_id": bson.ObjectIdHex(idstring)}).One(&result)
+	if err != nil {
+		return "Couldn't Find That ID String"
+	}
+	return result.CurHole
+}
+func nextHole(idstring string) string {
+	result := &Person{}
+	err := moncol.Find(bson.M{"_id": bson.ObjectIdHex(idstring)}).One(&result)
+	if err != nil {
+		return "Couldn't Find That ID String"
+	}
+	holenumstr := result.CurHole[5:]
+	holenum, _ := strconv.Atoi(holenumstr)
+	newHoleNum := holenum + 1
+	if newHoleNum == 19 {
+		newHoleNum = 1
+	}
+	newHoleStr := strconv.Itoa(newHoleNum)
+	return "Hole " + newHoleStr
+}
+func previousHole(idstring string) string {
+	result := &Person{}
+	err := moncol.Find(bson.M{"_id": bson.ObjectIdHex(idstring)}).One(&result)
+	if err != nil {
+		return "Couldn't Find That ID String"
+	}
+	holenumstr := result.CurHole[5:]
+	holenum, _ := strconv.Atoi(holenumstr)
+	newHoleNum := holenum - 1
+	if newHoleNum == 0 {
+		newHoleNum = 18
+	}
+	newHoleStr := strconv.Itoa(newHoleNum)
+	return "Hole " + newHoleStr
+}
 func main() {
 	initdb()
 	defer moncon.Close()
 	//fmt.Println(createNew("Anthony"))
-	fmt.Println(updateSingleHole("5a9aceeec9a0d85451c38031", "hole12", 3))
+	// fmt.Println(updateSingleHole("5a9aceeec9a0d85451c38031", "hole1", 7))
 	// fmt.Println(findOneByID("5a9aceeec9a0d85451c38031"))
 	//fmt.Println(deleteByID("5a98afa0c9a0d86be221e816")
-	//fmt.Println(updateSingleHole("5a98afa0c9a0d86be221e816", "Hole 1", 3))
+	// fmt.Println(currentHole("5a9aceeec9a0d85451c38031"))
+	// fmt.Println(nextHole("5a9aceeec9a0d85451c38031"))
+	fmt.Println(previousHole("5a9aceeec9a0d85451c38031"))
 }
