@@ -53,8 +53,9 @@ func updateSingleHole(idstring string, feild string, score int) string {
 	//couldn't find an easy way to test to make sure the first char of feild was uppercase
 	//so were just setting it to uppercase here
 	feild = strings.ToUpper(string(feild[0])) + feild[1:]
+	//Here we're making sure the hole number passed is betweeen 1 and 18
 	holeNum, _ := strconv.Atoi(string(feild[5:]))
-	if 0 < holeNum && holeNum > 19 {
+	if 1 <= holeNum && holeNum >= 18 {
 		return "Thats not a vaild hole number"
 	}
 	findDoc := bson.M{"_id": bson.ObjectIdHex(idstring)}
