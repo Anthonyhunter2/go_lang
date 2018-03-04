@@ -29,8 +29,8 @@ func findOneByID(idstring string) (*Person, error) {
 	}
 	return result, err
 }
-func updateOneByID(idstring string, golfer string) string {
-	result := &Person{}
+func updateNameByID(idstring string, golfer string) string {
+	result := &Person{Name: golfer}
 	err := moncol.Update(bson.M{"_id": bson.ObjectIdHex(idstring)}, &result)
 	if err != nil {
 		return "Couldn't Find that ID string"

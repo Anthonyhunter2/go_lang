@@ -38,7 +38,7 @@ func TestFindDoc(t *testing.T) {
 func TestUpdateDoc(t *testing.T) {
 	initdb()
 	defer moncon.Close()
-	check := updateOneByID(obID, "Testgolfer")
+	check := updateNameByID(obID, "Testgolfer")
 	if check != "Updated" {
 		t.Errorf("Something went wrong returning the doc")
 	}
