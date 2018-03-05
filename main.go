@@ -16,7 +16,8 @@ import (
 var userName string
 var passwd string
 
-// Used to create a random token that will be used for auth
+// randToken creates a random token that will be used for auth. This currently is a 16 byte byte slice that is returned
+// as a lower case base64 encoded string.
 func randToken() string {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
