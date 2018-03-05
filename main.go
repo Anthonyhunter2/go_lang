@@ -85,15 +85,33 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// Need to add logic here to check to see if the token already exists, if it does then create a new one.
 	// We also was to store this token with the username and some type of identifier to ensure this token
 	// is being used by the browser it was intended.
-	fmt.Println(token)
 	log.Println("Generating token for " + r.FormValue("id") + ": " + token)
+	RedisSet(token, r.FormValue("id"))
 	http.Error(w, token, 200)
 }
 
+// Validate is used to determine if a token that is provided is currently valid. Validate will determine if
+// this token is currently stored in Redis and return the id of the user it belongs to if it is valid.
+func Validate(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	log.Println("Checking the following token: " + params["token"])
+
+	// Submit a request to Redis for valid token. If the token is not found, type err will be returned.
+	resp, err := RedisGet(params["token"])
+	if err != nil {
+		http.Error(w, "Unknown", 401)
+	}
+
+	http.Error(w, resp, 200)
+}
+
 func main() {
+	RedisConnect()
 	router := mux.NewRouter()
 	router.HandleFunc("/createuser", CreateUser).Methods("POST")
 	router.HandleFunc("/login", Login).Methods("POST")
+	router.HandleFunc("/validate/{token}", Validate).Methods("GET")
 
 	log.Fatalln(http.ListenAndServe(":9000", router))
 }
