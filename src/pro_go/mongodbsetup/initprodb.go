@@ -11,7 +11,8 @@ var moncon *mgo.Session
 var mondb *mgo.Database
 var moncol *mgo.Collection
 
-func initdb() {
+//Initdb initalizes the db connection
+func Initdb() {
 	var err error
 	dbhost := "172.17.0.2"
 	dbname := "proGodb"
