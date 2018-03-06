@@ -9,7 +9,7 @@ import (
 var obID string
 
 func TestMongoCon(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
 	if moncon == nil {
 		t.Errorf("Couldn't make a connection")
@@ -17,9 +17,9 @@ func TestMongoCon(t *testing.T) {
 }
 
 func TestCreateDoc(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
-	result := createNew("testgolfer")
+	result := CreateNew("testgolfer")
 	if !bson.IsObjectIdHex(result) {
 		t.Errorf("Could not create new doc")
 	}
@@ -27,59 +27,60 @@ func TestCreateDoc(t *testing.T) {
 }
 
 func TestFindDoc(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
-	_, err := findOneByID(obID)
-	if err != nil {
+	if doc, _ := FindOneByID(obID); doc == nil {
 		t.Errorf("Something went wrong returning the doc")
 	}
 }
 
 func TestUpdateDoc(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
-	check := updateNameByID(obID, "Testgolfer")
-	if check != "Updated" {
+	UpdateNameByID(obID, "Testgolfer")
+	returnval, _ := FindOneByID(obID)
+	if returnval.Name != "Testgolfer" {
 		t.Errorf("Something went wrong returning the doc")
 	}
 }
+
 func TestUpdateHole(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
-	check := updateSingleHole(obID, "Hole 1", 5)
-	if check != "Updated" {
+	UpdateSingleHole(obID, "Hole 1", 5)
+	returnval, _ := FindOneByID(obID)
+	if returnval.Round.Hole1 != 5 {
 		t.Errorf("Something went wrong updating a single hole doc")
 	}
 }
+
 func TestCurHole(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
-	check := currentHole(obID)
-	if string(check[:4]) != "Hole" {
+	if check := CurrentHole(obID); check != "Hole 2" {
 		t.Errorf("Something went wrong returning current hole")
 	}
 }
+
 func TestNextHole(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
-	check := nextHole(obID)
-	if string(check[:4]) != "Hole" {
-		t.Errorf("Something went wrong returning Next hole")
+	if check := NextHole(obID); check != "Hole 3" {
+		t.Errorf("Something went wrong returning current hole")
 	}
 }
 func TestPreviousHole(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
-	check := previousHole(obID)
-	if string(check[:4]) != "Hole" {
-		t.Errorf("Something went wrong returning Previous hole")
+	if check := PreviousHole(obID); check != "Hole 1" {
+		t.Errorf("Something went wrong returning current hole")
 	}
 }
 func TestDeleteDoc(t *testing.T) {
-	initdb()
+	Initdb()
 	defer moncon.Close()
-	check := deleteByID(obID)
-	if check != "Deleted" {
+	DeleteByID(obID)
+	if _, err := FindOneByID(obID); err == nil {
 		t.Errorf("Something went wrong deleteing the doc")
 	}
 }
