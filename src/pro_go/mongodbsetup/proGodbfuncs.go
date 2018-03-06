@@ -13,7 +13,7 @@ import (
 func CreateNew(golfer string) string {
 	newID := bson.NewObjectId()
 	currentdate := time.Now().Format("2006-01-02")
-	playerone := &Person{ID: newID, Date: currentdate, Name: golfer}
+	playerone := &Person{ID: newID, Date: currentdate, Name: golfer, CurHole: "Hole 1"}
 	if err := moncol.Insert(playerone); err != nil {
 		log.Fatalf("Couldn't Create new round for %v", golfer)
 	}
@@ -76,7 +76,7 @@ func UpdateSingleHole(idstring string, feild string, score int) {
 }
 
 // CurrentHole Returns the current hole defined in the doc
-func CurrentHole(idstring string) string {
+func CurrentHolef(idstring string) string {
 	result := &Person{}
 	err := moncol.Find(bson.M{"_id": bson.ObjectIdHex(idstring)}).One(&result)
 	if err != nil {
@@ -98,8 +98,14 @@ func NextHole(idstring string) string {
 	if newHoleNum == 19 {
 		newHoleNum = 1
 	}
-	newHoleStr := strconv.Itoa(newHoleNum)
-	return "Hole " + newHoleStr
+	newHoleStr := "Hole " + strconv.Itoa(newHoleNum)
+	findDoc := bson.M{"_id": bson.ObjectIdHex(idstring)}
+	updateDoc := bson.M{"$set": bson.M{"Current Hole": newHoleStr}}
+	err2 := moncol.Update(findDoc, updateDoc)
+	if err2 != nil {
+		log.Fatalf("%v not a vaild id", idstring)
+	}
+	return newHoleStr
 }
 
 //PreviousHole returns the previous hole, if your on Hole 1 it will return Hole 18
@@ -115,8 +121,14 @@ func PreviousHole(idstring string) string {
 	if newHoleNum == 0 {
 		newHoleNum = 18
 	}
-	newHoleStr := strconv.Itoa(newHoleNum)
-	return "Hole " + newHoleStr
+	newHoleStr := "Hole " + strconv.Itoa(newHoleNum)
+	findDoc := bson.M{"_id": bson.ObjectIdHex(idstring)}
+	updateDoc := bson.M{"$set": bson.M{"Current Hole": newHoleStr}}
+	err2 := moncol.Update(findDoc, updateDoc)
+	if err2 != nil {
+		log.Fatalf("%v not a vaild id", idstring)
+	}
+	return newHoleStr
 }
 
 //DeleteByID deletes the document by the ObjectID
@@ -130,19 +142,19 @@ func DeleteByID(idstring string) {
 //func main() {
 //	Initdb()
 //	defer moncon.Close()
-	// for value := 0; value < 2000; value++ {
-	// 	val := strconv.Itoa(value)
-	// 	newval := "Entry" + val
-	// 	newID := createNew(newval)
-	// 	fmt.Println(findOneByID(newID))
-	// }
-	// fmt.Println(createNew("mazzaa"))
-	// fmt.Println(findOneByID("5a9de0e6c9a0d8525e0cdcfd"))
-	// updateSingleHole("5a9de0e6c9a0d8525e0cdcfd", "hole2", 7)
-	// updateNameByID("5a9de0e6c9a0d8525e0cdcfd", "Changed")
-	// fmt.Println(currentHole("5a9de0e6c9a0d8525e0cdcfd"))
-	//fmt.Println(nextHole("5a9de0e6c9a0d8525e0cdcfd"))
-	//fmt.Println(previousHole("5a9de0e6c9a0d8525e0cdcfd"))
-	//fmt.Println(deleteByID("5a98afa0c9a0d86be221e816")
+// for value := 0; value < 2000; value++ {
+// 	val := strconv.Itoa(value)
+// 	newval := "Entry" + val
+// 	newID := createNew(newval)
+// 	fmt.Println(findOneByID(newID))
+// }
+// fmt.Println(createNew("mazzaa"))
+// fmt.Println(findOneByID("5a9de0e6c9a0d8525e0cdcfd"))
+// updateSingleHole("5a9de0e6c9a0d8525e0cdcfd", "hole2", 7)
+// updateNameByID("5a9de0e6c9a0d8525e0cdcfd", "Changed")
+// fmt.Println(currentHole("5a9de0e6c9a0d8525e0cdcfd"))
+//fmt.Println(nextHole("5a9de0e6c9a0d8525e0cdcfd"))
+//fmt.Println(previousHole("5a9de0e6c9a0d8525e0cdcfd"))
+//fmt.Println(deleteByID("5a98afa0c9a0d86be221e816")
 
-}
+//}
