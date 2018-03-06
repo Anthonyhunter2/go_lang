@@ -127,9 +127,9 @@ func DeleteByID(idstring string) {
 	}
 }
 
-func main() {
-	Initdb()
-	defer moncon.Close()
+//func main() {
+//	Initdb()
+//	defer moncon.Close()
 	// for value := 0; value < 2000; value++ {
 	// 	val := strconv.Itoa(value)
 	// 	newval := "Entry" + val
