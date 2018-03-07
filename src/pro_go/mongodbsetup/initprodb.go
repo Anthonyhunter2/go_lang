@@ -60,3 +60,9 @@ type Person struct {
 	CurHole string        `json:"Current Hole" bson:"Current Hole"`
 	Round   Holes         `json:"Round" bson:"Round"`
 }
+
+type UserInfo struct {
+	Username string `json:"Username" bson:"Username"`
+	Email    string `json:"Email" bson:"Email"`
+	Password string `json:"Password" bson:"Password"`
+}

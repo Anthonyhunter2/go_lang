@@ -25,17 +25,23 @@ func NewRound(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(hexcode)
 }
 
-//CurrentRound will create a new record for the user passed in
+//GetScore will create a new record for the user passed in
 func GetScore(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	// token ;+ params["token"]
 	idstring := params["id"]
+	if !bson.IsObjectIdHex(idstring) {
+		w.WriteHeader(401)
+		w.Write([]byte("Thats not a vaild objectid"))
+		return
+	}
 	//Need to add the validate function to check token
 	//Validate(token)
 	round, err := FindOneByID(idstring)
 	if err != nil {
 		w.WriteHeader(401)
 		w.Write([]byte("That ID was not found"))
+		log.Println(err)
 		return
 	}
 	json.NewEncoder(w).Encode(round.Round)
@@ -83,6 +89,28 @@ func CurrentHole(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(curhole)
 }
+
+// func AddUser(w http.ResponseWriter, r *http.Request) {
+// 	params := mux.Vars(r)
+// 	// token ;+ params["token"]
+// 	idstring := params["id"]
+// 	//Need to add the validate function to check token
+// 	//Validate(token)
+// 	result := []UserInfo{}
+// 	adduser := &UserInfo{Username: idstring}
+// 	err := moncol.Find(bson.M{"Username": idstring}).All(&result)
+// 	if err != nil {
+// 		log.Println(err)
+// 	}
+// 	if len(result) == 0 {
+// 		log.Printf("Creating new User: %v", idstring)
+// 		moncol.Insert(adduser)
+// 	} else if len(result) > 0 {
+// 		log.Printf("%v :already exists", idstring)
+// 	}
+// 	log.Println(len(result))
+// 	json.NewEncoder(w).Encode("User")
+// }
 func main() {
 	Initdb()
 	defer moncon.Close()
@@ -101,6 +129,7 @@ func main() {
 	router.HandleFunc("/nexthole/{id}", NexHole).Methods("PUT")
 	router.HandleFunc("/prevhole/{id}", PrevHole).Methods("PUT")
 	router.HandleFunc("/currenthole/{id}", CurrentHole).Methods("GET")
+	// //router.HandleFunc("/adduser/{id}", AddUser).Methods("PUT")
 	//	router.HandleFunc("/getscore/{id}", GetScore).Methods("GET")
 	// router.HandleFunc("/currentround/{id}", CurrentRound).Methods("GET")
 	// router.HandleFunc("/currenthole/{id}", CurrentHole).Methods("GET")
